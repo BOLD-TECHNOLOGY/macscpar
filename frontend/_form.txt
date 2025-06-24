@@ -1,0 +1,119 @@
+import { useState, useContext } from 'react';
+import { ChevronDown, ChevronRight, Menu, X, BarChart3, Users, Building2, Settings, Eye, Plus, Edit3, UserPlus, FileText, Activity, Shield, Brain, Database, Bell, Lock, Trash2, Calendar, Download } from 'lucide-react';
+import { AppContext } from '../../../Context/AppContext';
+
+export default function SuperAdmin() {
+    const { user, token } = useContext(AppContext);
+    const [showCreateForm, setShowCreateForm] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        password: '',
+        password_confirmation: '',
+        role: 'igp'
+    });
+
+    const handleCreateOfficer = async (e) => {
+        e.preventDefault();
+        
+        try {
+            const res = await fetch('/api/admin/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await res.json();
+            
+            if (res.ok) {
+                alert(data.message);
+                setFormData({ name: '', email: '', password: '', password_confirmation: '', role: 'igp' });
+                setShowCreateForm(false);
+                fetchOfficers();
+            } else {
+                alert(data.message || 'Error creating officer');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const fetchOfficers = async () => {
+        // You'll need to create this endpoint
+        // For now, just placeholder
+    };
+
+    return (
+        <div className="dashboard-container">
+            <div className="dashboard-header">
+                <h1>Super Admin Dashboard</h1>
+                <p>Welcome, {user?.name}! You have full system control.</p>
+            </div>
+
+            <div className="dashboard-actions">
+                <button 
+                    onClick={() => setShowCreateForm(!showCreateForm)}
+                    className="btn btn-primary"
+                >
+                    {showCreateForm ? 'Cancel' : 'Create IGP Officer'}
+                </button>
+            </div>
+
+            {showCreateForm && (
+                <div className="create-form-container">
+                    <h3>Create IGP Officer</h3>
+                    <form onSubmit={handleCreateOfficer} className="create-officer-form">
+                        <input
+                            type="text"
+                            placeholder="Full Name"
+                            value={formData.name}
+                            onChange={(e) => setFormData({...formData, name: e.target.value})}
+                            required
+                        />
+                        <input
+                            type="email"
+                            placeholder="Email Address"
+                            value={formData.email}
+                            onChange={(e) => setFormData({...formData, email: e.target.value})}
+                            required
+                        />
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={formData.password}
+                            onChange={(e) => setFormData({...formData, password: e.target.value})}
+                            required
+                        />
+                        <input
+                            type="password"
+                            placeholder="Confirm Password"
+                            value={formData.password_confirmation}
+                            onChange={(e) => setFormData({...formData, password_confirmation: e.target.value})}
+                            required
+                        />
+                        <button type="submit" className="btn btn-success">Create IGP Officer</button>
+                    </form>
+                </div>
+            )}
+
+            <div className="dashboard-grid">
+                <div className="dashboard-card">
+                    <h3>System Overview</h3>
+                    <p>Total Users: 0</p>
+                    <p>Total Officers: 0</p>
+                </div>
+                <div className="dashboard-card">
+                    <h3>IGP Officers</h3>
+                    <p>Manage Inspector General of Police officers</p>
+                </div>
+                <div className="dashboard-card">
+                    <h3>System Logs</h3>
+                    <p>View system activity and logs</p>
+                </div>
+            </div>
+        </div>
+    );
+}
